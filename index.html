@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Teapacks Royale</title>
 <style>
-:root{--bg:#10182a;--panel:#17243bee;--cyan:#53e4e8;--gold:#ffd45c;--text:#f4f7ff}
+:root{--bg:#10182a;--panel:#17243bee;--cyan:#53e4e8;--gold:#ffd45c;--text:#f4f7ff;--safe-b:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}body{margin:0;background:#0c1322;color:var(--text);font:15px system-ui,Segoe UI,Arial;overflow:hidden}
 button,select,input{font:inherit}button{background:linear-gradient(135deg,#1d9da8,#3266c8);border:0;border-radius:9px;color:white;padding:10px 15px;font-weight:700;cursor:pointer}button:hover{filter:brightness(1.2)}button:disabled{opacity:.4;cursor:not-allowed}
 #game{position:fixed;inset:0;display:none}canvas{display:block}
@@ -20,16 +20,21 @@ button,select,input{font:inherit}button{background:linear-gradient(135deg,#1d9da
 #cross{font-size:24px;color:white}#notice{position:absolute;top:20%;left:50%;transform:translateX(-50%);background:#111d;padding:10px 16px;border-radius:10px;display:none}
 #pause{position:absolute;inset:0;background:#07101dcc;display:none;align-items:center;justify-content:center;pointer-events:auto}.pausebox{background:#182941;padding:24px;border-radius:14px;text-align:center}
 small{color:#b6c7da}
-@media(max-width:700px){.hero{grid-template-columns:1fr}.heroart{min-height:120px}.brand{font-size:23px}}
+button{touch-action:manipulation}
+#touchControls{display:none;position:absolute;inset:0;pointer-events:none;z-index:5}
+#stickArea{position:absolute;left:22px;bottom:calc(22px + var(--safe-b));width:138px;height:138px;border-radius:50%;background:#d9f4ff22;border:2px solid #d9f4ff66;pointer-events:auto;touch-action:none}
+#stick{position:absolute;left:39px;top:39px;width:58px;height:58px;border-radius:50%;background:#d9f4ff99;border:2px solid #fff;box-shadow:0 3px 14px #0007}
+.touchBtn{position:absolute;pointer-events:auto;border:2px solid #ffffffaa;border-radius:50%;width:66px;height:66px;padding:0;background:#173b62cc;font-size:23px;touch-action:none}
+#fireBtn{right:24px;bottom:calc(34px + var(--safe-b));width:82px;height:82px;background:#c94b43dd}
+#jumpBtn{right:116px;bottom:calc(34px + var(--safe-b))}
+#buildBtn{right:24px;bottom:calc(130px + var(--safe-b))}
+#lootBtn{right:116px;bottom:calc(130px + var(--safe-b))}
+#healBtn{right:24px;bottom:calc(224px + var(--safe-b))}
+#landscapeHint{display:none;position:absolute;inset:0;z-index:20;background:#091321;color:white;align-items:center;justify-content:center;text-align:center;padding:30px;font-size:20px}
+@media(orientation:portrait) and (max-width:900px){#landscapeHint{display:flex}#menu .shell{max-height:88vh}}
+@media(max-width:900px){.shell{padding:14px}.brand{font-size:23px}.tabs{gap:5px}.tabs button{padding:8px 10px;font-size:13px}.hero{grid-template-columns:1fr}.heroart{min-height:110px}}
+@media(orientation:landscape) and (max-width:1000px){#touchControls{display:block}.hudbox{font-size:12px;padding:6px 8px}.bar{width:120px;height:7px}.tl{top:7px;left:7px}.tr{top:7px;right:7px}.bl{bottom:7px;left:7px}.br{bottom:7px;right:7px}}
 
-#mobileControls{display:none;position:absolute;inset:0;pointer-events:none;z-index:5;touch-action:none}
-#stick{position:absolute;left:20px;bottom:28px;width:126px;height:126px;border-radius:50%;background:#ffffff25;border:2px solid #ffffff70;pointer-events:auto;touch-action:none}
-#nub{position:absolute;left:37px;top:37px;width:48px;height:48px;border-radius:50%;background:#d8f8ffbb;border:2px solid white;box-shadow:0 2px 10px #0008}
-.mobileBtns{position:absolute;right:14px;bottom:22px;display:grid;grid-template-columns:repeat(2,62px);gap:9px;pointer-events:auto}
-.mobileBtns button{width:62px;height:58px;padding:4px;border-radius:18px;background:#153c66dd;border:1px solid #ffffff88;font-size:12px;touch-action:none;user-select:none}
-.mobileBtns button.fire{grid-column:span 2;width:100%;height:66px;background:#b83c4cdd;font-size:15px}
-#lookHint{position:absolute;right:14px;top:85px;color:#fff9;font-size:11px;text-shadow:0 1px 3px #000}
-@media (pointer:coarse),(max-width:800px){#mobileControls{display:block}#game{touch-action:none}#hud .br{bottom:160px}#hud .bl{bottom:160px}#hud .tr{font-size:12px}#hud .tl{font-size:12px}.bar{width:110px}.center{font-size:18px}#pause .pausebox{width:90vw}}
 </style>
 </head>
 <body>
@@ -43,7 +48,7 @@ small{color:#b6c7da}
    <div class="row"><label>Spielmodus <select id="mode"><option>Solo</option><option>Duo (Solo-Bots)</option><option>Trio (Solo-Bots)</option><option>Team (Solo-Bots)</option></select></label>
    <label>Schwierigkeit <select id="difficulty"><option>Einfach</option><option selected>Normal</option><option>Schwer</option><option>Experte</option></select></label></div>
    <div class="row"><button id="start">▶ Battle Royale starten</button><button id="how">Steuerung</button></div>
-   <small>PC: WASD bewegen · Maus schauen · Linksklick Energieblaster · E Loot · Q Wand bauen · Shift sprinten · Esc Pause</small>
+   <small>PC: WASD · Maus · Linksklick feuern · E Loot · Q bauen · Shift sprinten · Esc Pause | iPhone: Querformat, Joystick links, Blick rechts</small>
   </div><div class="heroart">🪂</div></div>
   <div class="panel"><b>Dein Charakter</b><div class="row"><span id="avatar">🧑‍🚀</span><span id="equipped">Basis-Outfit</span><span class="muted">| Insel: Splitterküste</span></div></div>
  </section>
@@ -53,20 +58,17 @@ small{color:#b6c7da}
  <section id="creative" class="tab hidden"><h2>Kreativmodus</h2><p>Baue deine eigene kleine Insel. Platziere Objekte oder entferne sie wieder.</p><div class="row"><button id="creativeStart">Kreativinsel öffnen</button><button id="creativeClear">Insel zurücksetzen</button></div><p class="muted">Im Kreativmodus: Linksklick platziert ein Objekt, Rechtsklick entfernt das nächstgelegene Objekt.</p></section>
  <section id="settings" class="tab hidden"><h2>Einstellungen</h2><div class="row"><label>Grafik <select id="quality"><option>Hoch</option><option>Mittel</option><option>Niedrig</option></select></label><label>Master-Lautstärke <input id="volume" type="range" min="0" max="100"></label><label>Maus-Empfindlichkeit <input id="sens" type="range" min="1" max="10"></label></div><button id="saveSettings">Einstellungen speichern</button><p class="muted">Spielstand, Teapacks, XP, Spind und Einstellungen werden lokal in diesem Browser gespeichert.</p></section>
 </div></div>
-<div id="game"><div id="hud">
+<div id="game"><div id="landscapeHint">↻<br>Bitte drehe dein iPhone ins Querformat, um Teapacks Royale zu spielen.</div>
+<div id="touchControls"><div id="stickArea"><div id="stick"></div></div>
+<button class="touchBtn" id="fireBtn" aria-label="Feuern">●</button>
+<button class="touchBtn" id="jumpBtn" aria-label="Springen">⬆</button>
+<button class="touchBtn" id="buildBtn" aria-label="Bauen">▧</button>
+<button class="touchBtn" id="lootBtn" aria-label="Loot">E</button>
+<button class="touchBtn" id="healBtn" aria-label="Heilen">+</button></div><div id="hud">
  <div class="hudbox tl">❤️ <span id="hpText">100</span><div class="bar"><i id="hpBar" style="width:100%"></i></div>🛡️ <span id="shText">50</span><div class="bar shield"><i id="shBar" style="width:50%"></i></div></div>
  <div class="hudbox tr">👥 <span id="players">13</span> übrig<br>⏱ Sturm: <span id="storm">90</span>s<br>🏆 Eliminierungen: <span id="kills">0</span></div>
  <div class="hudbox bl">🔫 Energieblaster · <span id="ammo">∞</span><br>🎒 Heil-Kit: <span id="heals">1</span> · 🪵 <span id="mats">0</span></div>
  <div class="hudbox br">🟡 <span id="gameCoins">0</span> Teapacks</div><div class="center" id="cross">＋</div><div id="notice"></div>
-</div><div id="mobileControls">
- <div id="stick"><div id="nub"></div></div>
- <div id="lookHint">Wischen = Umschauen</div>
- <div class="mobileBtns">
-  <button class="fire" id="touchFire">🔫 FEUER</button>
-  <button id="touchJump">⬆ SPRUNG</button><button id="touchBuild">🧱 BAUEN</button>
-  <button id="touchUse">✋ LOOT</button><button id="touchHeal">❤️ HEILEN</button>
-  <button id="touchPause">Ⅱ PAUSE</button>
- </div>
 </div><div id="pause"><div class="pausebox"><h2 id="pauseTitle">Pause</h2><p>Esc zum Weiterspielen</p><button id="resume">Weiterspielen</button> <button id="leave">Lobby verlassen</button></div></div></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
@@ -86,19 +88,32 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.query
 drawShop();drawLocker();drawPass();refresh();
 $('quality').value=save.settings.quality;$('volume').value=save.settings.volume;$('sens').value=save.settings.sens;
 $('saveSettings').onclick=()=>{save.settings={quality:$('quality').value,volume:+$('volume').value,sens:+$('sens').value};persist();alert('Einstellungen gespeichert.')};
-$('how').onclick=()=>alert('WASD bewegen · Maus schauen · Linksklick schießen · E Loot/Heilung · Q Wand bauen · Shift sprinten · Esc Pause. Im Kreativmodus: Linksklick platzieren, Rechtsklick löschen.');
+$('how').onclick=()=>alert('PC: WASD bewegen, Maus schauen, Linksklick feuern, E Loot/Heilung, Q bauen, Esc Pause. iPhone: Querformat, Joystick links, rechts wischen zum Umsehen, Aktionsbuttons rechts.');
 let renderer,scene,camera,clock,player,keys={},yaw=0,pitch=0,gameOn=false,creative=false,health=100,shield=50,kills=0,ammo=Infinity,materials=0,heals=1,storm=90,bots=[],loot=[],builds=[],shots=[],objects=[],lastShot=0;
 const mapSize=180;
-function makeWorld(){scene=new THREE.Scene();scene.background=new THREE.Color(0x8ed7e8);scene.fog=new THREE.Fog(0x8ed7e8,90,220);camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,400);renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.shadowMap.enabled=true;$('game').prepend(renderer.domElement);
+function makeWorld(){scene=new THREE.Scene();scene.background=new THREE.Color(0x8ed7e8);scene.fog=new THREE.Fog(0x8ed7e8,90,220);camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,400);renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;$('game').prepend(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xdff6ff,0x557044,2));let sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(40,80,20);sun.castShadow=true;scene.add(sun);
 let ground=new THREE.Mesh(new THREE.PlaneGeometry(mapSize,mapSize),new THREE.MeshStandardMaterial({color:0x5bbd75,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
-for(let i=0;i<38;i++){let x=(Math.random()-.5)*155,z=(Math.random()-.5)*155;if(Math.abs(x)<12&&Math.abs(z)<12)continue;let h=2+Math.random()*9;let m=new THREE.Mesh(new THREE.CylinderGeometry(0,2.8,h,7),new THREE.MeshStandardMaterial({color:[0x2b865c,0x3c9d69,0x367c58][i%3]}));m.position.set(x,h/2,z);m.castShadow=true;scene.add(m);objects.push(m)}
+let water=new THREE.Mesh(new THREE.PlaneGeometry(260,260),new THREE.MeshStandardMaterial({color:0x269fc4,roughness:.22,metalness:.12}));
+water.rotation.x=-Math.PI/2;water.position.y=-.22;scene.add(water);
+let sunBall=new THREE.Mesh(new THREE.SphereGeometry(7,24,16),new THREE.MeshBasicMaterial({color:0xffe6a0}));sunBall.position.set(-65,65,-110);scene.add(sunBall);
+for(let i=0;i<42;i++){let x=(Math.random()-.5)*155,z=(Math.random()-.5)*155;if(Math.abs(x)<12&&Math.abs(z)<12)continue;let h=2+Math.random()*4;
+let trunk=new THREE.Mesh(new THREE.CylinderGeometry(.22,.38,h,8),new THREE.MeshStandardMaterial({color:0x765033,roughness:1}));trunk.position.set(x,h/2,z);trunk.castShadow=true;scene.add(trunk);
+for(let layer=0;layer<3;layer++){let crown=new THREE.Mesh(new THREE.IcosahedronGeometry(1.7-layer*.22,1),new THREE.MeshStandardMaterial({color:[0x24734d,0x32945b,0x45a968][(i+layer)%3],roughness:.88}));crown.position.set(x,h+layer*1.15,z);crown.castShadow=true;scene.add(crown);objects.push(crown)}}
 for(let i=0;i<24;i++){let x=(Math.random()-.5)*145,z=(Math.random()-.5)*145;if(Math.abs(x)<15&&Math.abs(z)<15)continue;let w=4+Math.random()*5,h=3+Math.random()*5;let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,w),new THREE.MeshStandardMaterial({color:[0xe6a45c,0x8f9eb6,0xd5d6d2][i%3]}));m.position.set(x,h/2,z);m.castShadow=true;scene.add(m);objects.push(m)}
-player=new THREE.Group();let body=new THREE.Mesh(new THREE.CapsuleGeometry(.55,.9,4,8),new THREE.MeshStandardMaterial({color:0x25a9bc}));body.position.y=1.15;player.add(body);let head=new THREE.Mesh(new THREE.SphereGeometry(.36,16,12),new THREE.MeshStandardMaterial({color:0xffd2a1}));head.position.y=2;player.add(head);player.position.set(0,0,0);scene.add(player);
+player=new THREE.Group();
+let skinName=save.equipped||'Basis-Outfit';
+let palette={'Neon-Nomade':0xb34cff,'Waldläufer':0x3d9b58,'Pixel-Panda':0xe9edf4,'Sternen-Ritter':0xe2b94e,'Turbo-Fuchs':0xe56b32,'Chrom-Bot':0x91a7bb,'Wüsten-Sprinter':0xc59b60,'Kristall-Magier':0x7d8fff,'Kaugummi-Kapitän':0xf06eae,'Frost-Forscher':0x8bd9ee,'Komplettpaket: Orbit':0x5c7cff,'Komplettpaket: Dschungel':0x2c9a69};
+let suitColor=palette[skinName]||0x25a9bc;
+let suitMat=new THREE.MeshStandardMaterial({color:suitColor,metalness:skinName==='Chrom-Bot'?.7:.18,roughness:.38});
+let body=new THREE.Mesh(new THREE.CapsuleGeometry(.55,.9,8,16),suitMat);body.position.y=1.15;body.castShadow=true;player.add(body);
+let head=new THREE.Mesh(new THREE.SphereGeometry(.36,24,16),new THREE.MeshStandardMaterial({color:skinName==='Chrom-Bot'?0xb7c8d8:0xffd2a1,metalness:skinName==='Chrom-Bot'?.65:0,roughness:.45}));head.position.y=2;head.castShadow=true;player.add(head);
+let visor=new THREE.Mesh(new THREE.BoxGeometry(.48,.13,.12),new THREE.MeshStandardMaterial({color:skinName==='Frost-Forscher'?0x54eaff:0x18243b,metalness:.6,roughness:.2,emissive:skinName==='Frost-Forscher'?0x124455:0x000000}));visor.position.set(0,2.03,-.29);player.add(visor);
+let pack=new THREE.Mesh(new THREE.BoxGeometry(.48,.62,.22),new THREE.MeshStandardMaterial({color:0x27364f,metalness:.4,roughness:.4}));pack.position.set(0,1.25,.48);player.add(pack);player.position.set(0,0,0);scene.add(player);
 camera.position.set(0,2.2,5);player.add(camera);camera.position.set(0,2.1,5);camera.rotation.order='YXZ';
 for(let i=0;i<13;i++){let b=new THREE.Mesh(new THREE.CapsuleGeometry(.5,.9,4,8),new THREE.MeshStandardMaterial({color:0xe16e54}));b.position.set((Math.random()-.5)*120,1,(Math.random()-.5)*120);b.userData={hp:2,dir:Math.random()*6.28};scene.add(b);bots.push(b)}
 for(let i=0;i<30;i++){let x=(Math.random()-.5)*145,z=(Math.random()-.5)*145;let box=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.2,1.5),new THREE.MeshStandardMaterial({color:0xf2c94c,emissive:0x6a4d08}));box.position.set(x,.6,z);box.userData={kind:i%4===0?'heal':'loot'};scene.add(box);loot.push(box)}
-clock=new THREE.Clock();renderer.domElement.addEventListener('click',()=>{if(gameOn&&!creative&&matchMedia('(pointer:fine)').matches)renderer.domElement.requestPointerLock()});renderer.domElement.addEventListener('mousedown',e=>{if(!gameOn)return;if(creative){if(e.button===0)placeBuild();if(e.button===2)removeBuild();return}if(e.button===0)shoot()});renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+clock=new THREE.Clock();renderer.domElement.addEventListener('click',()=>{if(gameOn&&!creative)renderer.domElement.requestPointerLock()});renderer.domElement.addEventListener('mousedown',e=>{if(!gameOn)return;if(creative){if(e.button===0)placeBuild();if(e.button===2)removeBuild();return}if(e.button===0)shoot()});renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
 }
 function notice(s){$('notice').textContent=s;$('notice').style.display='block';setTimeout(()=>$('notice').style.display='none',1800)}
 function shoot(){let now=performance.now();if(now-lastShot<350)return;lastShot=now;let dir=new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);let ray=new THREE.Raycaster(camera.getWorldPosition(new THREE.Vector3()),dir,0,55);let hits=ray.intersectObjects(bots,false);if(hits.length){let b=hits[0].object;b.userData.hp--;if(b.userData.hp<=0){scene.remove(b);bots=bots.filter(x=>x!==b);kills++;$('kills').textContent=kills;notice('Bot ausgeschaltet! +XP');save.xp+=80;persist();drawPass()}}}
@@ -112,23 +127,27 @@ function finish(win){gameOn=false;document.exitPointerLock?.();let reward=win?10
 function loop(){requestAnimationFrame(loop);let dt=Math.min(clock?.getDelta()||0,.05);update(dt)}
 document.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Escape'&&gameOn){$('pause').style.display='flex';gameOn=false;document.exitPointerLock?.()}if(e.code==='KeyE'&&gameOn)interact();if(e.code==='KeyQ'&&gameOn&&!creative)placeBuild()});
 document.addEventListener('keyup',e=>keys[e.code]=false);
-// Touch-Steuerung für iPhone/iPad: linker Daumen bewegt, rechts wischen = Kamera.
-const stick=$('stick'),nub=$('nub');let stickId=null,lookId=null,stickOrigin={x:0,y:0},lookLast={x:0,y:0};
-function setTouchMove(dx,dy){const dead=12;keys.KeyW=dy < -dead;keys.KeyS=dy > dead;keys.KeyA=dx < -dead;keys.KeyD=dx > dead;nub.style.transform=`translate(${dx}px,${dy}px)`}
-stick.addEventListener('pointerdown',e=>{if(!gameOn)return;stickId=e.pointerId;stick.setPointerCapture(stickId);let r=stick.getBoundingClientRect();stickOrigin={x:r.left+r.width/2,y:r.top+r.height/2};e.preventDefault()});
-stick.addEventListener('pointermove',e=>{if(e.pointerId!==stickId)return;let dx=e.clientX-stickOrigin.x,dy=e.clientY-stickOrigin.y;let len=Math.hypot(dx,dy),max=39;if(len>max){dx=dx/len*max;dy=dy/len*max}setTouchMove(dx,dy);e.preventDefault()});
-function resetStick(){stickId=null;setTouchMove(0,0)}stick.addEventListener('pointerup',resetStick);stick.addEventListener('pointercancel',resetStick);
-rendererLookSetup();
-function rendererLookSetup(){const area=$('game');area.addEventListener('pointerdown',e=>{if(!gameOn||e.target.closest('#mobileControls')||e.target.closest('#pause'))return;if(e.clientX<innerWidth*.38)return;lookId=e.pointerId;lookLast={x:e.clientX,y:e.clientY};e.preventDefault()});area.addEventListener('pointermove',e=>{if(e.pointerId!==lookId||!gameOn)return;let dx=e.clientX-lookLast.x,dy=e.clientY-lookLast.y;lookLast={x:e.clientX,y:e.clientY};let sens=(save.settings.sens||5)*.0011;yaw-=dx*sens;pitch=THREE.MathUtils.clamp(pitch-dy*sens,-1.2,1.2);e.preventDefault()});const end=e=>{if(e.pointerId===lookId)lookId=null};area.addEventListener('pointerup',end);area.addEventListener('pointercancel',end)}
-function bindHold(id,fn){$(id).addEventListener('pointerdown',e=>{e.preventDefault();if(gameOn)fn()})}
-bindHold('touchFire',shoot);bindHold('touchBuild',()=>creative?placeBuild():placeBuild());bindHold('touchUse',interact);bindHold('touchHeal',()=>{if(heals>0&&health<100){heals--;health=Math.min(100,health+40);$('heals').textContent=heals;notice('Heilung +40')}});
-bindHold('touchJump',()=>{if(gameOn){player.position.y=.7;setTimeout(()=>{player.position.y=0},250)}});
-bindHold('touchPause',()=>{gameOn=false;$('pause').style.display='flex'});
+// Touch controls for iPhone landscape.
+const stickArea=$('stickArea'),stick=$('stick');let stickPointer=null,stickOrigin=null,lookPointer=null,lastLook=null;
+function setTouchKey(code,on){keys[code]=on}
+stickArea.addEventListener('pointerdown',e=>{e.preventDefault();stickPointer=e.pointerId;stickArea.setPointerCapture(e.pointerId);let r=stickArea.getBoundingClientRect();stickOrigin={x:r.left+r.width/2,y:r.top+r.height/2};moveStick(e)});
+stickArea.addEventListener('pointermove',e=>{if(e.pointerId===stickPointer)moveStick(e)});
+function moveStick(e){if(!stickOrigin)return;let dx=e.clientX-stickOrigin.x,dy=e.clientY-stickOrigin.y,len=Math.hypot(dx,dy),max=42;if(len>max){dx=dx/len*max;dy=dy/len*max}stick.style.transform=`translate(${dx}px,${dy}px)`;setTouchKey('KeyW',dy<-12);setTouchKey('KeyS',dy>12);setTouchKey('KeyA',dx<-12);setTouchKey('KeyD',dx>12)}
+function resetStick(){stickPointer=null;stickOrigin=null;stick.style.transform='';['KeyW','KeyA','KeyS','KeyD'].forEach(k=>setTouchKey(k,false))}
+stickArea.addEventListener('pointerup',resetStick);stickArea.addEventListener('pointercancel',resetStick);
+$('game').addEventListener('pointerdown',e=>{if(e.clientX>innerWidth*.42&&e.target===$('game')){lookPointer=e.pointerId;lastLook={x:e.clientX,y:e.clientY}}});
+$('game').addEventListener('pointermove',e=>{if(e.pointerId===lookPointer&&lastLook&&gameOn){let dx=e.clientX-lastLook.x,dy=e.clientY-lastLook.y;yaw-=dx*.006;pitch=THREE.MathUtils.clamp(pitch-dy*.005,-1.15,1.15);lastLook={x:e.clientX,y:e.clientY}}});
+$('game').addEventListener('pointerup',e=>{if(e.pointerId===lookPointer){lookPointer=null;lastLook=null}});
+$('fireBtn').addEventListener('pointerdown',e=>{e.preventDefault();shoot()});
+$('buildBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(gameOn&&!creative)placeBuild()});
+$('lootBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(gameOn)interact()});
+$('healBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(gameOn&&heals>0&&health<100){heals--;health=Math.min(100,health+40);$('heals').textContent=heals;notice('Heilung +40')}});
+$('jumpBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(gameOn){player.position.y=.35;setTimeout(()=>{if(player)player.position.y=0},380)}});
 
 document.addEventListener('mousemove',e=>{if(document.pointerLockElement&&gameOn){let sens=(save.settings.sens||5)*.00045;yaw-=e.movementX*sens;pitch-=e.movementY*sens;pitch=THREE.MathUtils.clamp(pitch,-1.2,1.2)}});
 $('start').onclick=()=>begin(false);$('creativeStart').onclick=()=>begin(true);$('creativeClear').onclick=()=>{builds.forEach(x=>scene.remove(x));builds=[];notice('Kreativinsel zurückgesetzt')};
-function begin(c){creative=c;health=100;shield=50;kills=0;materials=0;heals=1;storm=90;bots.forEach(b=>scene.remove(b));bots=[];if(!renderer)makeWorld();if(!c){for(let i=0;i<13;i++){let b=new THREE.Mesh(new THREE.CapsuleGeometry(.5,.9,4,8),new THREE.MeshStandardMaterial({color:0xe16e54}));b.position.set((Math.random()-.5)*120,1,(Math.random()-.5)*120);b.userData={hp:2};scene.add(b);bots.push(b)}}player.position.set(0,0,0);gameOn=true;clock.start();$('menu').style.display='none';$('game').style.display='block';$('pause').style.display='none';$('players').textContent=bots.length+1;$('kills').textContent='0';$('gameCoins').textContent=save.coins;notice(c?'Kreativmodus gestartet':'Viel Erfolg!');if(matchMedia('(pointer:fine)').matches)renderer.domElement.requestPointerLock?.()}
-$('resume').onclick=()=>{$('pause').style.display='none';gameOn=true;if(matchMedia('(pointer:fine)').matches)if(matchMedia('(pointer:fine)').matches)renderer.domElement.requestPointerLock?.()};
+function begin(c){creative=c;health=100;shield=50;kills=0;materials=0;heals=1;storm=90;bots.forEach(b=>scene.remove(b));bots=[];if(!renderer)makeWorld();if(!c){for(let i=0;i<13;i++){let b=new THREE.Mesh(new THREE.CapsuleGeometry(.5,.9,4,8),new THREE.MeshStandardMaterial({color:0xe16e54}));b.position.set((Math.random()-.5)*120,1,(Math.random()-.5)*120);b.userData={hp:2};scene.add(b);bots.push(b)}}player.position.set(0,0,0);gameOn=true;clock.start();$('menu').style.display='none';$('game').style.display='block';$('pause').style.display='none';$('players').textContent=bots.length+1;$('kills').textContent='0';$('gameCoins').textContent=save.coins;notice(c?'Kreativmodus gestartet':'Viel Erfolg!');renderer.domElement.requestPointerLock?.()}
+$('resume').onclick=()=>{$('pause').style.display='none';gameOn=true;renderer.domElement.requestPointerLock?.()};
 $('leave').onclick=()=>{$('pause').style.display='none';$('game').style.display='none';$('menu').style.display='flex';gameOn=false;refresh();drawPass()};
 window.addEventListener('resize',()=>{if(renderer&&camera){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}});
 loop();
